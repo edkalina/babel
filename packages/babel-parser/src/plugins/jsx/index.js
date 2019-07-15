@@ -238,8 +238,10 @@ export default (superClass: Class<Parser>): Class<Parser> =>
     jsxParseNamespacedName(): N.JSXNamespacedName {
       const startPos = this.state.start;
       const startLoc = this.state.startLoc;
+      const isDecorator = this.eat(tt.at);
       const name = this.jsxParseIdentifier();
-      if (!this.eat(tt.colon)) return name;
+      name.isDecorator = isDecorator;
+      if (isDecorator || !this.eat(tt.colon)) return name;
 
       const node = this.startNodeAt(startPos, startLoc);
       node.namespace = name;
