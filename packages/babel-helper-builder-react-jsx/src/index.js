@@ -138,20 +138,54 @@ You can turn on the 'throwIfNamespace' flag to bypass this warning.`,
       opts.pre(state, file);
     }
 
-    let attribs = openingPath.node.attributes;
-    if (attribs.length) {
-      attribs = buildOpeningElementAttributes(attribs, file);
-    } else {
-      attribs = t.nullLiteral();
-    }
-
-    args.push(attribs, ...path.node.children);
-
     if (opts.post) {
       opts.post(state, file);
     }
 
-    return state.call || t.callExpression(state.callee, args);
+    const [initialProps, decorators] = splitDecorators(
+      openingPath.node.attributes,
+    );
+
+    decorators.push(state.callee);
+
+    args.push(
+      buildOpeningElementAttributes(initialProps, file),
+      ...path.node.children,
+    );
+
+    const initialDecorator = decorators.shift();
+    const initialExpr = t.callExpression(initialDecorator, args);
+
+    if (decorators.length === 0) {
+      return initialExpr;
+    }
+
+    return decorators.reduce((expr, decorator) => {
+      return t.callExpression(
+        t.memberExpression(decorator, t.identifier("apply")),
+        [t.nullLiteral(), expr],
+      );
+    }, initialExpr);
+  }
+
+  function splitDecorators(attribs) {
+    const initialProps = [];
+    const decorators = [];
+
+    for (let i = 0; i < attribs.length; i++) {
+      const attr = attribs[i];
+
+      if (t.isJSXAttribute(attr) && attr.name.isDecorator) {
+        const { name, value } = attr;
+
+        name.type = "Identifier";
+        decorators.push(t.callExpression(name, value ? [value] : []));
+      } else {
+        initialProps.push(attribs[i]);
+      }
+    }
+
+    return [initialProps, decorators];
   }
 
   function pushProps(_props, objs) {
@@ -169,6 +203,10 @@ You can turn on the 'throwIfNamespace' flag to bypass this warning.`,
    */
 
   function buildOpeningElementAttributes(attribs, file) {
+    if (attribs.length === 0) {
+      return t.nullLiteral();
+    }
+
     let _props = [];
     const objs = [];
 
