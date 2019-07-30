@@ -181,7 +181,9 @@ You can turn on the 'throwIfNamespace' flag to bypass this warning.`,
         const { name, value } = attr;
 
         name.type = "Identifier";
-        decorators.push(t.callExpression(name, value ? [value] : []));
+        decorators.push(
+          t.callExpression(name, value ? [convertAttributeValue(value)] : []),
+        );
       } else {
         initialProps.push(attribs[i]);
       }
