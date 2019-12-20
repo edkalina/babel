@@ -882,7 +882,7 @@ export type JSXMemberExpression = Node;
 export type JSXEmptyExpression = Node;
 export type JSXSpreadChild = Node;
 export type JSXExpressionContainer = Node;
-export type JSXAttribute = Node;
+export type JSXAttribute = Node & { isMeta: boolean };
 export type JSXOpeningElement = NodeBase & {
   type: "JSXOpeningElement",
   name: JSXNamespacedName | JSXMemberExpression,

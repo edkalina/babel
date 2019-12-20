@@ -123,8 +123,9 @@ export default function isReferenced(
       return false;
 
     // no: <div NODE="foo" />
+    // yes: <div @NODE="foo" />
     case "JSXAttribute":
-      return false;
+      return parent.isMeta;
 
     // no: [NODE] = [];
     // no: ({ NODE }) = [];

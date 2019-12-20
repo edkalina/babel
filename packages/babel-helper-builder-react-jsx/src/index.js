@@ -177,7 +177,7 @@ You can turn on the 'throwIfNamespace' flag to bypass this warning.`,
     for (let i = 0; i < attribs.length; i++) {
       const attr = attribs[i];
 
-      if (t.isJSXAttribute(attr) && attr.name.isDecorator) {
+      if (t.isJSXAttribute(attr) && attr.isMeta) {
         const { name, value } = attr;
 
         name.type = "Identifier";

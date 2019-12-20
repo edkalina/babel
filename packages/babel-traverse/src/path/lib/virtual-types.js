@@ -6,7 +6,11 @@ export const ReferencedIdentifier = {
   types: ["Identifier", "JSXIdentifier"],
   checkPath(path: NodePath, opts?: Object): boolean {
     const { node, parent } = path;
-    if (!t.isIdentifier(node, opts) && !t.isJSXMemberExpression(parent, opts)) {
+    if (
+      !t.isIdentifier(node, opts) &&
+      !t.isJSXMemberExpression(parent, opts) &&
+      !t.isJSXAttribute(parent, opts)
+    ) {
       if (t.isJSXIdentifier(node, opts)) {
         if (react.isCompatTag(node.name)) return false;
       } else {
